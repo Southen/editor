@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Editor</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <script type="application/javascript" src="CodeMirror/lib/codemirror.js"></script>
+  <script type="application/javascript" src="CodeMirror/mode/xml/xml.js"></script>
+  <script type="application/javascript" src="CodeMirror/mode/javascript/javascript.js"></script>
+  <script type="application/javascript" src="CodeMirror/mode/css/css.js"></script>
+  <script type="application/javascript" src="CodeMirror/mode/htmlmixed/htmlmixed.js"></script>
+  <script type="application/javascript" src="CodeMirror/addon/mode/overlay.js"></script>
+  <script type="application/javascript" src="CodeMirror/mode/markdown/markdown.js"></script>
+  <script type="application/javascript" src="CodeMirror/mode/gfm/gfm.js"></script>
+  <script type="application/javascript" src="CodeMirror/mode/clike/clike.js"></script>
+  <script type="application/javascript" src="cssunminifier/lib/cssunminifier.js"></script>
+  <script type="application/javascript" src="js-beautify/js/lib/beautify.js"></script>
+  <script type="application/javascript" src="js-beautify/js/lib/beautify-html.js"></script>
+  <!--<script type="application/javascript" src="js-beautify/js/lib/beautify-css.js"></script>-->
+  <script type="application/javascript" src="marked/lib/marked.js"></script>
+  <script type="application/javascript" src="js-deflate/rawinflate.js"></script>
+  <script type="application/javascript" src="js-deflate/rawdeflate.js"></script>
+  <!--<script type="application/javascript" src="src/highlight.js"></script>-->
+  <script type="application/javascript" src="json-editor/dist/jsoneditor.min.js"></script>
+  <!--<script type="application/javascript" src="tv4/tv4.js"></script>-->
+  <!--<script type="application/javascript" src="swagger-ui/dist/lib/shred.bundle.js"></script>-->
+  <script type="application/javascript" src="swagger-ui/dist/lib/jquery-1.8.0.min.js"></script>
+  <script type="application/javascript" src="swagger-ui/dist/lib/jquery.slideto.min.js"></script>
+  <script type="application/javascript" src="swagger-ui/dist/lib/jquery.wiggle.min.js"></script>
+  <script type="application/javascript" src="swagger-ui/dist/lib/jquery.ba-bbq.min.js"></script>
+  <script type="application/javascript" src="swagger-ui/dist/lib/handlebars-1.0.0.js"></script>
+  <script type="application/javascript" src="swagger-ui/dist/lib/underscore-min.js"></script>
+  <script type="application/javascript" src="swagger-ui/dist/lib/backbone-min.js"></script>
+  <script type="application/javascript" src="swagger-ui/dist/lib/swagger.js"></script>
+  <script type="application/javascript" src="swagger-ui/dist/lib/swagger-client.js"></script>
+  <script type="application/javascript" src="swagger-ui/dist/swagger-ui.js"></script>
+  <!--<script type="application/javascript" src="swagger-ui/dist/lib/highlight.7.3.pack.js"></script>-->
+  <script type="application/javascript" src="JSV/lib/uri/uri.js"></script>
+  <!--<script type="application/javascript" src="JSV/lib/uri/schemes/urn.js"></script>-->
+  <script type="application/javascript" src="JSV/lib/jsv.js"></script>
+  <script type="application/javascript" src="JSV/lib/json-schema-draft-03.js"></script>
+  <!--<script type="application/javascript" src=""></script>-->
+  <!--<link type="text/css" rel="stylesheet" href="swagger-ui/dist/css/reset.css" />-->
+  <link type="text/css" rel="stylesheet" href="swagger-ui/dist/css/screen.css" />
+  <!--<link type="text/css" rel="stylesheet" href="" />-->
+  <link type="text/css" rel="stylesheet" href="CodeMirror/lib/codemirror.css" />
+  <link type="text/css" rel="stylesheet" href="CodeMirror/theme/3024-night.css" />
+  <link type="text/css" rel="stylesheet" href="CodeMirror/theme/tomorrow-night-bright.css" />
+  <link type="text/css" rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" />
+  <link type="text/css" rel="stylesheet" href="octicons/octicons/octicons.css" />
+  <link type="text/css" rel="stylesheet" href="github.css" />
+  <style type="text/css">
+    html, body { height: 100%; overflow: hidden; position: relative; margin: 0; padding: 0; }
+    #conf {
+      margin: 0;
+      padding: 0;
+      height: 26px;
+      font-family: sans-serif;
+      width: 100%;
+    }
+    #conf div { padding: 1px 0; }
+    #intools > :first-child { margin-left: 28px; }
+    #intools {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 50%;
+    }
+    #outtools {
+      position: fixed;
+      top: 0;
+      right: 0;
+      left: 50%;
+    }
+    #endtools {
+      position: fixed;
+      top: 0;
+      right: 20px;
+    }
+    #conf input[type="text"] { width: 200px; font-size: 12px; padding: 2.5px; }
+    #conf select { width: 150px; }
+    #darkmode .fa { padding-left: 1px; border-radius: 15px; }
+    #darkmode .fa-inverse { background-color: #000; }
+    .darkmode #out, .darkmode #conf { background: #000; color: #eaeaea; }
+    .darkmode .swagger-section .swagger-ui-wrap .body-textarea { background: #080808; color: #eaeaea; }
+    .darkmode .swagger-section pre code { color: #eaeaea; }
+    .darkmode .swagger-section .swagger-ui-wrap a { color: #eee; }
+    .darkmode .swagger-section .swagger-ui-wrap a:hover { color: #fff; }
+    .darkmode .swagger-section .swagger-ui-wrap p { color: #ccc; }
+    .darkmode .swagger-section .swagger-ui-wrap .model-signature .description .strong,
+    .darkmode .swagger-section .swagger-ui-wrap .model-signature .signature-nav .selected,
+    .darkmode .swagger-section .swagger-ui-wrap .model-signature .signature-nav a:hover { color: #fff; }
+    .darkmode .swagger-section .swagger-ui-wrap ul#resources li.resource:hover div.heading h2 a,
+    .darkmode .swagger-section .swagger-ui-wrap ul#resources li.resource.active div.heading h2 a { color: #fff; }
+    .darkmode .swagger-section .swagger-ui-wrap ul#resources li.resource div.heading ul.options li a:hover { color: #fff; }
+    .darkmode .swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation div.heading h3 span.path a { color: #fff; }
+    .darkmode .swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.put     div.heading { background-color: #191209; }
+    .darkmode .swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.put     div.content { background-color: #1a150e; }
+    .darkmode .swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.head    div.heading { background-color: #1c1f0d; }
+    .darkmode .swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.head    div.content { background-color: #1c1f0d; }
+    .darkmode .swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.delete  div.heading { background-color: #150808; }
+    .darkmode .swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.delete  div.content { background-color: #170d0d; }
+    .darkmode .swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.post    div.heading { background-color: #07160c; }
+    .darkmode .swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.post    div.content { background-color: #0b1710; }
+    .darkmode .swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.patch   div.heading { background-color: #1c0903; }
+    .darkmode .swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.patch   div.content { background-color: #1a100f; }
+    .darkmode .swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.get     div.heading { background-color: #071017; }
+    .darkmode .swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.get     div.content { background-color: #0b1319; }
+    .darkmode .swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.options div.heading { background-color: #071017; }
+    .darkmode .swagger-section .swagger-ui-wrap ul#resources li.resource ul.endpoints li.endpoint ul.operations li.operation.options div.content { background-color: #0b1319; }
+    .darkmode .markdown-body pre { background: #080808; }
+    #basei { margin-right: 0; border-top-right-radius: 0; border-bottom-right-radius: 0; }
+    #base  { margin-left: -6px; vertical-align: middle; }
+    select {
+      font-size: 10px;
+      /*font-weight: bold;*/
+      vertical-align: middle;
+      cursor: pointer;
+    }
+    button {
+      position: relative;
+      display: inline-block;
+      /*margin: 1.5px;*/
+      padding: 0 0;
+      font-size: 10px;
+      font-weight: bold;
+      color: #333;
+      text-shadow: 0 1px 0 rgba(255, 255, 255, 0.9);
+      white-space: nowrap;
+      vertical-align: middle;
+      cursor: pointer;
+      background-color: #eee;
+      background-image: linear-gradient(#fcfcfc, #eee);
+      background-repeat: repeat-x;
+      border: 1px solid #d5d5d5;
+      border-radius: 3px;
+      user-select: none;
+    }
+    button .fa { font-size: 14px; vertical-align: middle; padding: 2px 0; }
+    /*button .fa-inverse { background-color: #000; background-image: linear-gradient(#000, #111); }*/
+    button:focus {
+      text-decoration: none;
+      border-color: #51a7e8;
+      outline: none;
+      box-shadow: 0 0 5px rgba(81, 167, 232, 0.5);
+    }
+    button:hover, button:active {
+      text-decoration: none;
+      background-color: #ddd;
+      background-image: linear-gradient(#eee, #ddd);
+      background-repeat: repeat-x;
+      border-color: #ccc;
+    }
+    button:disabled, button:disabled:hover {
+      color: rgba(102, 102, 102, 0.5);
+      text-shadow: 0 1px 0 rgba(255, 255, 255, 0.9);
+      cursor: default;
+      background-color: rgba(229, 229, 229, 0.5);
+      background-image: none;
+      border-color: rgba(197, 197, 197, 0.5);
+      box-shadow: none;
+    }
+    .swagger-section .swagger-ui-wrap .toggleEndpointList { pointer-events: none; cursor: default; }
+    .swagger-section .swagger-ui-wrap ul#resources li.resource div.heading ul.options li:first-child { display: none; }
+    .swagger-section .swagger-ui-wrap { margin-bottom: 30px; }
+    .swagger-section ul, .swagger-section ol { list-style: none; margin: 0; padding: 0; border: 0; }
+    .markdown-body { color: #333; }
+    .markdown-body a { color: #4183c4; }
+    .markdown-body > :last-child { margin-bottom: 30px !important; }
+    #education .area:before { content: "\f0d7"; font: 16px Octicons; margin-right: 6px; }
+    #work .position:before { content: "\f0d3"; font: 16px Octicons; margin-right: 6px; }
+    #volunteer .position:before { content: "\f037"; font: 16px Octicons; margin-right: 6px; }
+    blockquote { border-left: 5px solid #ccc !important; }
+    #header { background: #eee !important; }
+    li:before { opacity: 0.5 !important; }
+    #content h3 { color: #aaa !important; }
+
+    .CodeMirror pre { line-height: 14px; }
+    #in /*, .CodeMirror*/ {
+      position: fixed;
+      top: 26px;
+      left: 0;
+      bottom: 0;
+      width: 50%;
+      /*overflow: auto;*/
+      font-size: 12px;
+      box-shadow: 0 0 10px 0px rgba(0,0,0,0.2);
+      overflow: hidden;
+      /*height: 99%;*/
+    }
+    .CodeMirror {
+      position: fixed;
+      top: 26px;
+      left: 0;
+      bottom: 26px;
+      width: 50%;
+      height: 97.5%;
+      /*min-height: 100%;*/
+      overflow: hidden;
+    }
+    .CodeMirror-scroll {
+      /*height: auto !important;
+      overflow: visible;*/
+      /*height: 100%;
+      min-height: 100%;*/
+      overflow-y: hidden;
+      overflow-x: auto;
+    }
+    pre { margin: 0; padding: 0; }
+    #out {
+      position: fixed;
+      top: 26px;
+      right: 0;
+      left: 50%;
+      bottom: 0;
+      overflow: auto;
+      padding: 10px 15px;
+      /*color: #444;
+      font-family: "Helvetica Neue", Helvetica, "Segoe UI", Arial, freesans, sans-serif;
+      color: #333;
+      font-size: 16px;
+      line-height: 1.5em*/
+      box-shadow: 0 0 10px 0px rgba(0,0,0,0.2);
+    }
+    @media screen and (max-width: 1024px) {
+      #in {
+        display: none;
+      }
+      #out {
+        left: 0;
+        padding-left: 10px;
+      }
+    }
+    .view #in {
+      display: none;
+    }
+    .view #out {
+      left: 0;
+      padding-left: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div id="conf">
+    <form>
+      <div id="intools">
+        <select id="mode" title="Editor language mode">
+          <option value="text/html" selected="selected">HTML</option>
+          <option value="text/css">CSS</option>
+          <option value="application/javascript">JavaScript</option>
+          <option value="application/json">JSON</option>
+          <option value="application/schema+json">JSON Schema</option>
+          <option value="application/swagger+json">Swagger</option>
+          <!--<option value="application/x-resume+json">JSON Resume</option>-->
+          <option value="application/xml">XML</option>
+          <!--<option value="text/x-c++src">C/C++</option>-->
+          <!-- text/x-lua -->
+          <!-- text/x-vertex -->
+          <option value="text/markdown">Markdown</option>
+        </select>
+      </div>
+      <div id="outtools">
+        <button type="button" id="format" title="&laquo; Apply prettified formatting to editor"><span class="fa fa-fw fa-outdent"></span>Format </button>
+        <button type="button" id="basei" title="Base URI"><span class="fa fa-fw fa-external-link"></span></button>
+        <input type="text" id="base" title="Base URI" value="http://" />
+      </div>
+      <div id="endtools">
+        <button type="button" id="darkmode" title="Low light mode"><span class="fa fa-fw fa-lightbulb-o"></span></button>
+      </div>
+  </form>
+  </div>
+  <div id="in"><form><textarea id="code">&lt;html&gt;
+  &lt;body&gt;
+    &lt;h2 style="color: green;"&gt;Loading...?&lt;/h2&gt;
+  &lt/body&gt;
+&lt;/html&gt;
+</textarea></form></div>
+  <div id="out"></div>
+
+  <script type="application/javascript">
+  //<![CDATA[
+    var URL = window.URL || window.webkitURL || window.mozURL || window.msURL;
+    navigator.saveBlob = navigator.saveBlob || navigator.msSaveBlob || navigator.mozSaveBlob || navigator.webkitSaveBlob;
+    window.saveAs = window.saveAs || window.webkitSaveAs || window.mozSaveAs || window.msSaveAs;
+
+    /*hljs.configure({classPrefix: ''});
+    hljs.initHighlightingOnLoad();
+    // Because highlight.js is a bit awkward at times
+    var languageOverrides = {
+      js: 'javascript',
+      html: 'xml'
+    }*/
+    /*marked.setOptions({
+      highlight: function(code, lang) {
+        if (languageOverrides[lang]) lang = languageOverrides[lang];
+        return hljs.getLanguage(lang) ? hljs.highlight(lang, code).value : code;
+      }
+    });*/
+
+    CodeMirror.defineMIME("text/markdown", "gfm");
+    CodeMirror.defineMIME("application/schema+json",  {name: "javascript", json: true});
+    CodeMirror.defineMIME("application/swagger+json", {name: "javascript", json: true});
+    CodeMirror.defineMIME("application/x-resume+json", {name: "javascript", json: true});
+
+    function setOutput(val) {
+      document.getElementById('out').innerHTML = val; //marked(val);
+    }
+
+    function update(e) {
+      //console.log(arguments.callee.caller.toString());
+      //console.trace();
+      e.setOption('mode', document.getElementById('mode').options[ document.getElementById('mode').selectedIndex ].value);
+      document.getElementById('format').disabled = true;
+      document.getElementById('base').disabled = true;
+      document.getElementById('out').className = '';
+      if ((e.getOption('mode') != 'text/markdown') && (readme) && (editor.getValue() == readme)) {
+        e.setValue(''); // clear README on unedited mode switch
+      }
+      var val = e.getValue();
+      switch (e.getOption('mode')) {
+        case 'text/html':
+          setOutput((document.getElementById('base').value.length > 7 ? '<base href="' + document.getElementById('base').value + '" />' : '') + val);
+          document.getElementById('base').disabled = false;
+          break;
+        case 'text/css':
+          document.getElementById('out').textContent = unminify(val, 2);
+          setOutput('<pre>' + document.getElementById('out').innerHTML + '</pre>');
+          document.getElementById('format').disabled = false;
+          break;
+        case 'application/json':
+          try {
+            jQuery.parseJSON(val)
+          }
+          catch (e) {
+            setOutput('<pre>' + e + '</pre>');
+            break;
+          }
+          // don't break
+        case 'application/javascript':
+          document.getElementById('out').textContent = js_beautify(val, {
+            'indent_size': 2,
+            'indent_char': ' ',
+            'brace_style': 'end-expand'
+          });
+          setOutput('<pre>' + document.getElementById('out').innerHTML + '</pre>');
+          document.getElementById('format').disabled = false;
+          break;
+        case 'application/schema+json':
+          //try { var startval = (window.jsoneditor ? window.jsoneditor.getValue() : null); } catch(e) { }
+          if (window.jsoneditor) window.jsoneditor.destroy();
+          setOutput('');
+          //console.log(tv4.validateMultiple("", JSON.parse(val)));
+          //console.log(tv4.error);
+          //console.log(JSV.getDefaultEnvironmentID());
+          //console.log(JSV._environments);
+          try {
+            var jsv = JSV.createEnvironment("json-schema-draft-03");
+            var report = jsv.validate(jsv.createInstance(undefined, "json"), jsv.createSchema(JSON.parse(val), null, "schema"));
+            if (report.errors.length) {
+              throw js_beautify(JSON.stringify(report.errors), { 'indent_size': 2, 'indent_char': ' ', 'brace_style': 'end-expand' });
+            }
+            window.jsoneditor = new JSONEditor(document.getElementById('out'), {
+              schema: JSON.parse(val),
+              //startval: startval,
+              //ajax: true,
+              disable_array_reorder: true,
+              disable_collapse: true,
+              disable_properties: false,
+              no_additional_properties: true,
+              show_errors: 'always',
+              iconlib: 'fontawesome4',
+              //theme: 'html'
+            });
+          }
+          catch (e) {
+            setOutput('<pre>' + e + '</pre>');
+          }
+          break;
+        case 'application/swagger+json':
+          try {
+          //SwaggerUi.useJQuery = true;
+          window.swaggerUi = new SwaggerUi({
+            url: 'http://inphinity.com.au/editor/', //'swagger.js',
+            spec: JSON.parse(val),
+            dom_id: 'swagger-ui-container',
+            supportedSubmitMethods: ['get', 'post', 'put', 'delete'],
+            useJQuery: true,
+            onComplete: function(swaggerApi, swaggerUi) {
+              //log("Loaded SwaggerUI");
+              //if(typeof initOAuth == "function") {
+              //  initOAuth({
+              //    clientId: "your-client-id",
+              //    realm: "your-realms",
+              //    appName: "your-app-name"
+              //  });
+              //}
+              //$('pre code').each(function(i, e) {
+              //  hljs.highlightBlock(e)
+              //});
+            },
+            onFailure: function(data) {
+              log("Unable to Load SwaggerUI");
+            },
+            docExpansion: 'list',
+            sorter : 'alpha'
+          });
+            setOutput('');
+            window.swaggerUi.load();
+            document.getElementById('out').className = 'swagger-section';
+            setOutput('<div class="swagger-ui-wrap" id="swagger-ui-container">' + document.getElementById('out').innerHTML + '</div>');
+          }
+          catch (e) {
+            setOutput('<pre>' + e + '</pre>');
+          }
+          break;
+        /*case 'application/x-resume+json':
+          try {
+            $.ajax({
+              type: "POST",
+              contentType: "application/json",
+              data: JSON.stringify({ resume: JSON.parse(val) }, null, "  "),
+              url: "http://inphinity.com.au:3000/flat",
+              //url: "http://inphinity.com.au/debug.php",
+              success: function(html) {
+                setOutput(html);
+                //console.log(html);
+                //$('#header .container .row').prepend('X');
+              }
+            });
+          }
+          catch (e) {
+            setOutput('<pre>' + e + '</pre>');
+            break;
+          }
+          break;*/
+        case 'application/xml':
+          //setOutput('<script type="application/xml">' + val + '<\/script>');  // chrome://global/content/xml/XMLPrettyPrint.xsl
+          setOutput('TODO');
+          break;
+        case 'text/markdown':
+          document.getElementById('out').className = 'markdown-body';
+          setOutput(marked(val));
+          break;
+        default:
+          document.getElementById('out').textContent = val;
+          setOutput('<pre>' + document.getElementById('out').innerHTML + '</pre>');
+      }
+      if ((window.location.hash) || ((readme) && (editor.getValue() != readme))) {
+        clearTimeout(hashto);
+        hashto = setTimeout(updateHash, 1000);
+      }
+    }
+
+    var hashto;
+    function updateHash() {
+      window.location.hash = btoa(RawDeflate.deflate(unescape(encodeURIComponent(editor.getValue()))))
+    }
+
+    document.getElementById('format').addEventListener('click', function(e) {
+      editor.setValue(document.getElementById('out').textContent);
+    });
+    document.getElementById('darkmode').addEventListener('click', function(e) {
+      var toDark = !document.getElementById('darkmode').getElementsByTagName('span')[0].className.endsWith(" fa-inverse");
+      document.body.className = (toDark ? 'darkmode' : '');
+      editor.setOption('theme', (toDark ? 'tomorrow-night-bright' : 'default'));
+      //editor.setOption('theme', '3024-night');
+      //document.getElementById('conf').style.backgroundColor = (toDark ? '#000000' : 'inherit');
+      //document.getElementById('out').style.backgroundColor = (toDark ? '#000000' : 'inherit');
+      //document.getElementById('out').style.color = (toDark ? '#eaeaea' : 'inherit');
+      document.getElementById('darkmode').getElementsByTagName('span')[0].className = "fa fa-fw fa-lightbulb-o" + (toDark ? " fa-inverse" : "");
+      //document.getElementById('darkmode').style.backgroundColor = (toDark ? '#000000' : 'inherit');
+      return false;
+    });
+
+    var scrolling = false;
+    document.addEventListener('DOMContentLoaded', function() {
+      var scrollin  = document.getElementsByClassName('CodeMirror-vscrollbar')[0];
+      var scrollout = document.getElementById('out');
+      scrollin.addEventListener('scroll', function(e) {
+        if (!scrolling) {
+          scrolling = true;
+          scrollout.scrollTop = ( scrollin.scrollTop / ( scrollin.scrollHeight -  scrollin.offsetHeight)) * (scrollout.scrollHeight - scrollout.offsetHeight);
+          setTimeout(function() { scrolling = false; }, 2);
+        }
+      });
+      scrollout.addEventListener('scroll', function(e) {
+        if (!scrolling) {
+          scrolling = true;
+          scrollin.scrollTop   = (scrollout.scrollTop / (scrollout.scrollHeight - scrollout.offsetHeight)) * ( scrollin.scrollHeight -  scrollin.offsetHeight);
+          setTimeout(function() { scrolling = false; }, 2);
+        }
+      });
+    });
+
+    var editor = CodeMirror.fromTextArea(document.getElementById('code'), {
+      mode: 'text/html',
+      lineNumbers: true,
+      /*matchBrackets: true,*/
+      lineWrapping: true,
+      theme: 'default',
+      /*onChange: function(e) {
+        console.log('got here');
+      }*/
+      /*onChange: update*/
+    });
+    var pending;
+    editor.on("change", function(e) {
+      clearTimeout(pending);
+      pending = setTimeout(function() { update(e); }, 400);
+    });
+
+    document.getElementById('mode').onchange = function() { update(editor); };
+    document.getElementById('base').onchange = function() { update(editor); };
+
+    document.addEventListener('drop', function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      var theFile = e.dataTransfer.files[0];
+      var theReader = new FileReader();
+      theReader.onload = function(e) {
+        editor.setValue(e.target.result);
+      };
+      theReader.readAsText(theFile);
+      // TODO: detect type
+    }, false);
+
+    function save() {
+      var code = editor.getValue();
+      var blob = new Blob([code], { type: editor.getOption('mode') + ';charset=utf8;' });
+      var ext = "txt";
+      switch (editor.getOption('mode')) {
+        case 'text/html':              ext = "html"; break;
+        case 'text/css':               ext = "css";  break;
+        case 'application/javascript': ext = "js";   break;
+        case 'application/json':       ext = "json"; break;
+        case 'application/xml':        ext = "xml";  break;
+        case 'text/markdown':          ext = "md";   break;
+        default:                       ext = "txt";  break;
+      }
+      var name = "untitled." + ext;
+      // TODO: switch on type
+      if (result = code.match(/<title>\s*(.*)\s*<\/title>/)) { name = result[1] + "." + ext; }
+      saveBlob(name, blob);
+    }
+    function saveBlob(name, blob) {
+      if (window.saveAs) {
+        window.saveAs(blob, name);
+      }
+      else if (navigator.saveBlob) {
+        navigator.saveBlob(blob, name);
+      }
+      else {
+        url = URL.createObjectURL(blob);
+        var link = document.createElement("a");
+        link.setAttribute("href", url);
+        link.setAttribute("download", name);
+        var event = document.createEvent('MouseEvents');
+        event.initMouseEvent('click', true, true, window, 1, 0, 0, 0, 0, false, false, false, false, 0, null);
+        link.dispatchEvent(event);
+      }
+    }
+
+    document.addEventListener('keydown', function(e) {
+      if (e.keyCode == 83 && (e.ctrlKey || e.metaKey)) {
+        e.preventDefault();
+        save();
+        return false;
+      }
+    })
+
+    var readme;
+    if (window.location.hash) {
+      var h = window.location.hash.replace(/^#/, '');
+      /*if (h.slice(0,5) == 'view:') {
+        setOutput(decodeURIComponent(escape(RawDeflate.inflate(atob(h.slice(5))))));
+        document.body.className = 'view';
+      }
+      else*/
+      if (h.slice(0,7) == 'http://') {	// This doesn't really work anymore, due to CORS :(
+        $.ajax({
+          type: 'GET',
+          url: h,
+          dataType: 'text'
+        }).done(function(msg) {
+          editor.setValue(msg);
+        }).fail(function(obj, status, error) {
+          editor.setValue(error);
+        });
+        //var Shred = require("./shred");
+        //var shred = new Shred();
+        //shred.request({ 'url': h, 'success': function() { console.log("got here"); } });
+        //update(editor);
+        editor.focus();
+      }
+      else {
+        editor.setValue(decodeURIComponent(escape(RawDeflate.inflate(atob(h)))))
+        //update(editor);
+        editor.focus();
+      }
+      //console.log(editor.getValue()); /// TODO: try to detect type?
+    }
+    else if (!readme) {
+      var req = new XMLHttpRequest();
+      req.onreadystatechange = function() {
+        if ((req.readyState == 4) && (req.status == 200)) {
+          readme = req.responseText
+          editor.setValue(readme);
+          document.getElementById('mode').value = "text/markdown";
+          update(editor);
+        }
+      }
+      req.open("GET", "README.md", true);
+      req.send();
+      update(editor);
+      editor.focus();
+    }
+  //]]>
+  </script>
+</body>
+</html>

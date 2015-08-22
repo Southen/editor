@@ -1,0 +1,27 @@
+[submodule "CodeMirror"]
+	path = CodeMirror
+	url = https://github.com/marijnh/CodeMirror.git
+[submodule "marked"]
+	path = marked
+	url = https://github.com/chjj/marked.git
+[submodule "cssunminifier"]
+	path = cssunminifier
+	url = https://github.com/mrcoles/cssunminifier.git
+[submodule "js-beautify"]
+	path = js-beautify
+	url = https://github.com/beautify-web/js-beautify.git
+[submodule "js-deflate"]
+	path = js-deflate
+	url = https://github.com/dankogai/js-deflate.git
+[submodule "json-editor"]
+	path = json-editor
+	url = https://github.com/jdorn/json-editor.git
+[submodule "swagger-ui"]
+	path = swagger-ui
+	url = https://github.com/Southen/swagger-ui.git
+[submodule "JSV"]
+	path = JSV
+	url = https://github.com/garycourt/JSV.git
+[submodule "octicons"]
+	path = octicons
+	url = https://github.com/github/octicons.git
